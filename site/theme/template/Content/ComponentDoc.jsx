@@ -12,7 +12,7 @@ import { getConfig } from '../utils';
 export default class ComponentDoc extends React.Component {
   static contextTypes = {
     intl: PropTypes.object,
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -26,7 +26,7 @@ export default class ComponentDoc extends React.Component {
     this.setState({
       expandAll: !this.state.expandAll,
     });
-  }
+  };
 
   render() {
     const { props } = this;
@@ -39,18 +39,14 @@ export default class ComponentDoc extends React.Component {
     const isSingleCol = meta.cols === 1;
     const leftChildren = [];
     const rightChildren = [];
-    const showedDemo = demos.some(demo => demo.meta.only) ?
-      demos.filter(demo => demo.meta.only) : demos.filter(demo => demo.preview);
-    showedDemo.sort((a, b) => a.meta.order - b.meta.order)
+    const showedDemo = demos.some(demo => demo.meta.only)
+      ? demos.filter(demo => demo.meta.only)
+      : demos.filter(demo => demo.preview);
+    showedDemo
+      .sort((a, b) => a.meta.order - b.meta.order)
       .forEach((demoData, index) => {
         const demoElem = (
-          <Demo
-            {...demoData}
-            key={demoData.meta.filename}
-            utils={props.utils}
-            expand={expand}
-            location={location}
-          />
+          <Demo {...demoData} key={demoData.meta.filename} utils={props.utils} expand={expand} location={location} />
         );
         if (index % 2 === 0 || isSingleCol) {
           leftChildren.push(demoElem);
@@ -63,20 +59,17 @@ export default class ComponentDoc extends React.Component {
       'code-box-expand-trigger-active': expand,
     });
 
-    const jumper = showedDemo.map((demo) => {
+    const jumper = showedDemo.map(demo => {
       const { title } = demo.meta;
       const localizeTitle = title[locale] || title;
       return (
         <li key={demo.meta.id} title={localizeTitle}>
-          <a href={`#${demo.meta.id}`}>
-            {localizeTitle}
-          </a>
+          <a href={`#${demo.meta.id}`}>{localizeTitle}</a>
         </li>
       );
     });
 
     const { title, subtitle, filename } = meta;
-    console.log(window.config);
     return (
       <DocumentTitle title={`${subtitle || ''} ${title[locale] || title} - ${getConfig('title')}`}>
         <article>
@@ -88,17 +81,10 @@ export default class ComponentDoc extends React.Component {
           <section className="markdown">
             <h1>
               {title[locale] || title}
-              {
-                !subtitle ? null : <span className="subtitle">{subtitle}</span>
-              }
+              {!subtitle ? null : <span className="subtitle">{subtitle}</span>}
               <EditButton title={<FormattedMessage id="app.content.edit-page" />} filename={filename} />
             </h1>
-            {
-              props.utils.toReactComponent(
-                ['section', { className: 'markdown' }]
-                  .concat(getChildren(content))
-              )
-            }
+            {props.utils.toReactComponent(['section', { className: 'markdown' }].concat(getChildren(content)))}
             <h2>
               <FormattedMessage id="app.component.examples" />
               <Icon
@@ -110,25 +96,23 @@ export default class ComponentDoc extends React.Component {
             </h2>
           </section>
           <Row gutter={16}>
-            <Col span={isSingleCol ? 24 : 12}
-              className={isSingleCol ?
-                'code-boxes-col-1-1' :
-                'code-boxes-col-2-1'
-              }
-            >
+            <Col span={isSingleCol ? 24 : 12} className={isSingleCol ? 'code-boxes-col-1-1' : 'code-boxes-col-2-1'}>
               {leftChildren}
             </Col>
-            {
-              isSingleCol ? null : <Col className="code-boxes-col-2-1" span={12}>{rightChildren}</Col>
-            }
+            {isSingleCol ? null : (
+              <Col className="code-boxes-col-2-1" span={12}>
+                {rightChildren}
+              </Col>
+            )}
           </Row>
-          {
-            props.utils.toReactComponent(
-              ['section', {
+          {props.utils.toReactComponent(
+            [
+              'section',
+              {
                 className: 'markdown api-container',
-              }].concat(getChildren(doc.api || ['placeholder']))
-            )
-          }
+              },
+            ].concat(getChildren(doc.api || ['placeholder']))
+          )}
         </article>
       </DocumentTitle>
     );

@@ -12,7 +12,7 @@ title:
 ```jsx
 import { Map } from 'hope-tmap';
 
-Map();
+const map = new Map();
 
 console.log('adfb');
 ```
