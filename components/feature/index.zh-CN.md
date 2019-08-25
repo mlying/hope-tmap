@@ -1,13 +1,13 @@
 ---
 category: Components
 type: General
-title: Layer
-subtitle: 图层
+title: Feature
+subtitle: 要素对象
 ---
 
 ## 何时使用
 
-图层组件
+要素对象
 
 ## API
 

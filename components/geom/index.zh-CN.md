@@ -1,13 +1,13 @@
 ---
 category: Components
 type: General
-title: Layer
-subtitle: 图层
+title: Geometry
+subtitle: 几何对象
 ---
 
 ## 何时使用
 
-图层组件
+几何对象
 
 ## API
 
