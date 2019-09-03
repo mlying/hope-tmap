@@ -3,3 +3,4 @@
 /lib
 /_site
 /dist
+package-lock.json

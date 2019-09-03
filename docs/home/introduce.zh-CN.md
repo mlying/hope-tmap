@@ -28,25 +28,17 @@ title: hope-tmap
 ## 示例
 
 ```jsx
-import { View, Map, Layer } from 'hope-tmap';
+import { Map, Layer } from 'hope-tmap';
 
-const { MapView } = View;
-const { TileLayer } = Layer;
-const api = 'http://192.168.8.130:8085';
+const { LabelLayer } = Layer;
 
-class App extends React.Component {
-  render() {
-    return (
-      <div style={{ width: '100%', height: '400px' }}>
-        <MapView api={api}>
-          <Map>
-            <TileLayer url="https://services.arcgisonline.com/arcgis/rest/services/World_Terrain_Base/MapServer" />
-          </Map>
-        </MapView>
-      </div>
-    );
-  }
-}
+const div = document.createElement('div');
 
-ReactDOM.render(<App />, mountNode);
+const mapOptions = {};
+
+const map = new Map(div, mapOptions);
+
+const layer = new LabelLayer();
+
+map.addLayer(layer);
 ```
