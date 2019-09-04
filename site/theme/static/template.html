@@ -33,6 +33,9 @@
     if (!window.Promise) {
       document.writeln('<script src="https://as.alipayobjects.com/g/component/es6-promise/3.2.2/es6-promise.min.js"' + '>' + '<' + '/' + 'script>');
     }
+    if (!window.IntersectionObserver) {
+      document.writeln('<script src="http://192.168.8.29:8085/ecity_js_api1.0/frame/libs/polyfill/intersection-observer-polyfill.js"' + '>' + '<' + '/' + 'script>');
+    }
     window.templateConfig = {
       title: '{{title}}',
       extra: '{{ config }}'

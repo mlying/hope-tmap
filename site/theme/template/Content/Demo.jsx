@@ -197,6 +197,7 @@ ${state.sourceCode.replace('mountNode', "document.getElementById('container')")}
             width="100%"
             height="100%"
             standby="正在加载请稍后..."
+            style={{ height: 500 }}
           >
             {state.objectMount && this.renderLive()}
           </object>
