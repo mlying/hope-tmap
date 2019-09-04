@@ -12,7 +12,7 @@ title:
 ```jsx
 import { Map } from 'hope-tmap';
 
-Map();
-
-console.log('adfb');
+const map = new Map({
+  target: 'Web3DCtrl',
+});
 ```

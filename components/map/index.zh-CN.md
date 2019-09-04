@@ -3,6 +3,7 @@ category: Components
 type: General
 title: Map
 subtitle: 地图
+cols: 1
 ---
 
 ## 何时使用

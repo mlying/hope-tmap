@@ -3,6 +3,7 @@ category: Components
 type: General
 title: Layer
 subtitle: 图层
+cols: 1
 ---
 
 ## 何时使用
