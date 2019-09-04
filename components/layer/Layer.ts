@@ -1,15 +1,17 @@
 import BaseComponent from '../_utils/Base';
 import Feature from '../feature/Feature';
 import Map from '../map';
+import GroupLayer from './GroupLayer';
 
-export interface ILayerProps {
+export interface ILayer {
   id: string;
 }
 
-export default class Layer extends BaseComponent<ILayerProps> {
+export default abstract class Layer<P extends ILayer> extends BaseComponent<P> {
   private id: string;
   private features: Feature[];
-  constructor(props: ILayerProps) {
+  static GroupLayer = GroupLayer;
+  constructor(props: P) {
     super(props);
 
     this.id = props.id;

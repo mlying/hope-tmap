@@ -1,8 +1,3 @@
-import BaseComponent from '../_utils/Base';
+import Layer from './Layer';
 
-export interface ILayer {}
-
-export default abstract class Layer<P extends ILayer> extends BaseComponent<P> {
-  abstract add(): void;
-  abstract remove(): void;
-}
+export default Layer;
