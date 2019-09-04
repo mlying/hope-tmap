@@ -6,8 +6,11 @@ export interface IMapProps {
   target: string;
 }
 
+<<<<<<< HEAD
 function evnCheck() {}
 
+=======
+>>>>>>> 9269cebac50696e97253bca887e21b1dedfb58d2
 export default class Map extends BaseComponent<IMapProps> {
   private layers: Layer[];
   constructor(props: IMapProps) {
