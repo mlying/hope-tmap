@@ -1,0 +1,47 @@
+{
+  "name": "hope-tmap",
+  "version": "0.1.0",
+  "description": "pipenet component seed",
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "scripts": {
+    "test": "jest --config .jest.js",
+    "dist": "antd-tools run dist",
+    "compile": "antd-tools run compile",
+    "clean": "antd-tools run clean",
+    "pub": "npm run compile && npm run dist",
+    "start": "rimraf _site && node ./scripts/generateColorLess.js && cross-env NODE_ENV=development bisheng start -c ./site/bisheng.config.js",
+    "site": "rimraf _site && cross-env NODE_ENV=production bisheng build -c ./site/bisheng.config.js && node ./scripts/generateColorLess.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/remotesc2/hope-tmap.git"
+  },
+  "publishConfig": {
+    "registry": "http://192.168.8.254:8081/repository/npm-private/"
+  },
+  "keywords": [
+    "pipenet",
+    "componenet",
+    "typescript"
+  ],
+  "author": "re",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/remotesc2/hope-tmap/issues"
+  },
+  "homepage": "https://github.com/remotesc2/hope-tmap#readme",
+  "peerDependencies": {},
+  "devDependencies": {
+    "antd-tools": "^5.1.6",
+    "bisheng-theme-yd": "^1.1.11",
+    "cross-env": "^5.2.0",
+    "eslint-config-airbnb": "^17.1.1",
+    "eslint-plugin-markdown": "^1.0.0",
+    "eventemitter2": "^5.0.1",
+    "jest": "^24.8.0",
+    "stylelint-config-pipenet": "^0.2.0",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {}
+}
