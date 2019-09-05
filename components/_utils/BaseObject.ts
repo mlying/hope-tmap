@@ -1,6 +1,6 @@
-import { EventEmitter2 } from 'eventemitter2';
 import { Dictionary } from './interface';
 import BaseObjectEvent from './BaseObjectEvent';
+import Observable from './Observable';
 
 const changeEventTypeCache: Dictionary<any> = {};
 
@@ -14,7 +14,7 @@ export const ObjectEventType = {
   PROPERTYCHANGE: 'propertychange',
 };
 
-export default class BaseObject<P extends Dictionary<any>> extends EventEmitter2 {
+export default class BaseObject<P extends Dictionary<any>> extends Observable {
   private values: Dictionary<any> = {};
   constructor(props: P) {
     super(); //must call super for "this" to be defined.
@@ -28,8 +28,8 @@ export default class BaseObject<P extends Dictionary<any>> extends EventEmitter2
    * @return {*} Value.
    * @api
    */
-  get<T>(key: string): T | null {
-    let value = null;
+  get<T>(key: string): T | undefined {
+    let value;
     if (this.values.hasOwnProperty(key)) {
       value = this.values[key] as T;
     }
@@ -61,9 +61,9 @@ export default class BaseObject<P extends Dictionary<any>> extends EventEmitter2
   notify(key: string, oldValue: string) {
     let eventType;
     eventType = getChangeEventType(key);
-    this.emit(eventType, new BaseObjectEvent(eventType, key, oldValue));
+    this.dispatchEvent(new BaseObjectEvent(eventType, key, oldValue));
     eventType = ObjectEventType.PROPERTYCHANGE;
-    this.emit(eventType, new BaseObjectEvent(eventType, key, oldValue));
+    this.dispatchEvent(new BaseObjectEvent(eventType, key, oldValue));
   }
 
   /**
