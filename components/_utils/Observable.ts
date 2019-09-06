@@ -1,6 +1,6 @@
 import { listen, unlistenByKey, unlisten, listenOnce, EventsKey } from './events.js';
 import EventTarget, { ListenerFunction } from './events/Target.js';
-import EventType from './events/EventType.js';
+import BaseEventType from './events/BaseEventType.js';
 
 /**
  * @classdesc
@@ -30,7 +30,7 @@ export default class Observable extends EventTarget {
    */
   changed() {
     ++this.revision_;
-    this.dispatchEvent(EventType.CHANGE);
+    this.dispatchEvent(BaseEventType.CHANGE);
   }
 
   /**

@@ -37,26 +37,16 @@ export interface ICollection<T> {
  */
 export default class Collection<T> extends BaseObject<ICollection<T>> {
   private unique_: boolean;
-  private array_: (T | undefined)[];
+  private array_: (T)[];
   /**
-   * @param {Array<T>=} opt_array Array.
-   * @param {Options=} opt_options Collection options.
+   * @param {ICollection=} opt Collection options.
    */
   constructor(opt: ICollection<T>) {
     super(opt);
 
     const { options, arr = [] } = opt;
 
-    /**
-     * @private
-     * @type {boolean}
-     */
     this.unique_ = options ? !!options.unique : false;
-
-    /**
-     * @private
-     * @type {!Array<T>}
-     */
     this.array_ = arr;
 
     if (this.unique_) {
@@ -99,7 +89,7 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
    *     index and the array). The return value is ignored.
    * @api
    */
-  forEach(f: (arg0: T | undefined, arg1: number, arg2: (T | undefined)[]) => void) {
+  forEach(f: (arg0: T, arg1: number, arg2: (T)[]) => void) {
     const array = this.array_;
     for (let i = 0, ii = array.length; i < ii; ++i) {
       f(array[i], i, array);
@@ -114,17 +104,17 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
    * @return {T[]} Array.
    * @api
    */
-  getArray(): (T | undefined)[] {
+  getArray(): (T)[] {
     return this.array_;
   }
 
   /**
    * Get the element at the provided index.
    * @param {number} index Index.
-   * @return {T | undefined} Element.
+   * @return {T } Element.
    * @api
    */
-  item(index: number): T | undefined {
+  item(index: number): T {
     return this.array_[index];
   }
 
@@ -145,7 +135,7 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
    * @param {T} elem Element.
    * @api
    */
-  insertAt(index: number, elem?: T) {
+  insertAt(index: number, elem: T) {
     if (this.unique_) {
       this.assertUnique_(elem);
     }
@@ -160,7 +150,7 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
    * @return {T|undefined} Element.
    * @api
    */
-  pop(): T | undefined {
+  pop(): T {
     return this.removeAt(this.getLength() - 1);
   }
 
@@ -202,7 +192,7 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
    * @return {T|undefined} Value.
    * @api
    */
-  removeAt(index: number): T | undefined {
+  removeAt(index: number): T {
     const prev = this.array_[index];
     this.array_.splice(index, 1);
     this.updateLength_();
@@ -216,23 +206,23 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
    * @param {T} elem Element.
    * @api
    */
-  setAt(index: number, elem: T) {
-    const n = this.getLength();
-    if (index < n) {
-      if (this.unique_) {
-        this.assertUnique_(elem, index);
-      }
-      const prev = this.array_[index];
-      this.array_[index] = elem;
-      this.dispatchEvent(new CollectionEvent(CollectionEventType.REMOVE, prev, index));
-      this.dispatchEvent(new CollectionEvent(CollectionEventType.ADD, elem, index));
-    } else {
-      for (let j = n; j < index; ++j) {
-        this.insertAt(j, undefined);
-      }
-      this.insertAt(index, elem);
-    }
-  }
+  // setAt(index: number, elem: T) {
+  //   const n = this.getLength();
+  //   if (index < n) {
+  //     if (this.unique_) {
+  //       this.assertUnique_(elem, index);
+  //     }
+  //     const prev = this.array_[index];
+  //     this.array_[index] = elem;
+  //     this.dispatchEvent(new CollectionEvent(CollectionEventType.REMOVE, prev, index));
+  //     this.dispatchEvent(new CollectionEvent(CollectionEventType.ADD, elem, index));
+  //   } else {
+  //     for (let j = n; j < index; ++j) {
+  //       this.insertAt(j, undefined);
+  //     }
+  //     this.insertAt(index, elem);
+  //   }
+  // }
 
   /**
    * @private

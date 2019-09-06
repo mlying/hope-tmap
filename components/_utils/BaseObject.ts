@@ -16,10 +16,12 @@ export const ObjectEventType = {
 
 export default class BaseObject<P extends Dictionary<any>> extends Observable {
   private values: Dictionary<any> = {};
-  constructor(props: P) {
+  constructor(options?: P) {
     super(); //must call super for "this" to be defined.
 
-    this.setProperties(props);
+    if (options !== undefined) {
+      this.setProperties(options);
+    }
   }
 
   /**

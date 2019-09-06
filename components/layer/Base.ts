@@ -1,16 +1,14 @@
+import BaseObject from '../_utils/BaseObject';
 import Feature from '../feature/Feature';
 import Map from '../map';
-import GroupLayer from './GroupLayer';
-import BaseLayer, { IBaseLayer } from './Base';
 
-export interface ILayer extends IBaseLayer {
-  id: string;
+export interface IBaseLayer {
+  opacity?: number;
+  visible?: boolean;
 }
 
-export default class Layer extends BaseLayer<ILayer> {
-  private features: Feature[];
-  static GroupLayer = GroupLayer;
-  constructor(props: ILayer) {
+export default abstract class BaseLayer<P extends IBaseLayer> extends BaseObject<P> {
+  constructor(props: P) {
     super(props);
 
     this.on('ok', res => {

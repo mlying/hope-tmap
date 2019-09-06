@@ -8,25 +8,22 @@ import CollectionEventType from './CollectionEventType';
  */
 export default class CollectionEvent extends Event {
   /**
+   * The element that is added to or removed from the collection.
+   */
+  element: Element;
+  /**
+   * The index of the added or removed element.
+   */
+  index: number;
+  /**
    * @param {CollectionEventType} type Type.
-   * @param {*=} opt_element Element.
+   * @param {Element | any} opt_element Element.
    * @param {number} opt_index The index of the added or removed element.
    */
-  constructor(type: CollectionEventType, opt_element: any, opt_index: any) {
+  constructor(type: CollectionEventType, opt_element: Element | any, opt_index: number) {
     super(type);
 
-    /**
-     * The element that is added to or removed from the collection.
-     * @type {*}
-     * @api
-     */
     this.element = opt_element;
-
-    /**
-     * The index of the added or removed element.
-     * @type {number}
-     * @api
-     */
     this.index = opt_index;
   }
 }

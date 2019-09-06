@@ -1,17 +1,54 @@
-import BaseObject from '../_utils/BaseObject';
+import BaseObject, { getChangeEventType } from '../_utils/BaseObject';
 import { LayerOption, AutoColor, ViewPoint } from './interface';
-import Layer, { ILayer } from '../layer/Layer';
-import { ITDECtrl } from '../_utils/interface';
+import Layer from '../layer/Layer';
+import GroupLayer from '../layer/Group';
+import { ITDECtrl, Dictionary } from '../_utils/interface';
+import { listen, EventsKey, unlistenByKey } from '../_utils/events';
+import BaseEventType from '../_utils/events/BaseEventType';
+import BaseObjectEventType from '../_utils/BaseObjectEventType';
+import MapRender from '../renderer/MapRender';
+import Collection from '../_utils/Collection';
 
-export interface IMapProps {
+export interface IMapOptions {
   target: string;
+  layers: GroupLayer | Layer[] | Collection<Layer>;
 }
 
-export default class Map extends BaseObject<IMapProps> {
-  private layers: Layer<ILayer>[];
+export interface IMapOptionsInternal {
+  values: Dictionary<any>;
+}
+
+export enum MapProperty {
+  LAYERGROUP = 'layergroup',
+  TARGET = 'target',
+}
+
+function createOptionsInternal(options: IMapOptions): IMapOptionsInternal {
+  const values: Dictionary<any> = {};
+
+  const groupLayer = isGroupLayer(options.layers) ? options.layers : new GroupLayer({ layers: options.layers });
+
+  values[MapProperty.LAYERGROUP] = groupLayer;
+
+  return {
+    values,
+  };
+}
+
+function isGroupLayer(layers: any): layers is GroupLayer {
+  return layers && layers.getLayers === 'function';
+}
+
+export default class Map extends BaseObject<IMapOptions> {
+  private layers: Layer[];
   private ctrl: ITDECtrl;
-  constructor(props: IMapProps) {
-    super(props);
+  private animationDelayKey_: number | undefined;
+  private layerGroupPropertyListenerKeys?: EventsKey[];
+  private renderer_: MapRender;
+  constructor(options: IMapOptions) {
+    super();
+
+    const optionsInternal = createOptionsInternal(options);
 
     const target = this.get<string>('target');
     if (!target) {
@@ -27,11 +64,9 @@ export default class Map extends BaseObject<IMapProps> {
 
     this.ctrl = elm as ITDECtrl;
 
-    this.on('ok', res => {
-      console.log(res);
-    });
+    listen(this, getChangeEventType(MapProperty.LAYERGROUP), this.handleLayerGroupChanged, this);
 
-    this.emit('ok', 'i am map');
+    this.setProperties(optionsInternal.values);
   }
   getControl() {
     return this.ctrl;
@@ -65,4 +100,31 @@ export default class Map extends BaseObject<IMapProps> {
   getCenterViewPoint(): ViewPoint {}
   setUnderGroundView(hight: number) {}
   closeUnderGroundView() {}
+  getLayerGroup(): GroupLayer {
+    return this.get(MapProperty.LAYERGROUP);
+  }
+  private handleLayerGroupChanged() {
+    if (this.layerGroupPropertyListenerKeys) {
+      this.layerGroupPropertyListenerKeys.forEach(unlistenByKey);
+      this.layerGroupPropertyListenerKeys = undefined;
+    }
+    const layerGroup = this.getLayerGroup();
+    if (layerGroup) {
+      this.layerGroupPropertyListenerKeys = [
+        listen(layerGroup, BaseObjectEventType.PROPERTYCHANGE, this.renderMap, this),
+        listen(layerGroup, BaseEventType.CHANGE, this.renderMap, this),
+      ];
+    }
+    this.renderMap();
+  }
+  private animationDelay_ = () => {
+    this.animationDelayKey_ = undefined;
+    this.renderFrame_(Date.now());
+  };
+  private renderFrame_(time: number) {}
+  private renderMap() {
+    if (this.renderer_ && this.animationDelayKey_ === undefined) {
+      this.animationDelayKey_ = requestAnimationFrame(this.animationDelay_);
+    }
+  }
 }

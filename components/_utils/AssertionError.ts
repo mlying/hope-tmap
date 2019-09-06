@@ -1,18 +1,16 @@
-/**
- * Error object thrown when an assertion failed. This is an ECMA-262 Error,
- * extended with a `code` property.
- * See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error.
- */
+import { VERSION } from './util';
+
 class AssertionError extends Error {
   /**
    * Error code.
    */
-  code: number;
+  code: errorCode;
   /**
-   * @param {number} code Error code.
+   * @param {errorCode} code Error code.
    */
-  constructor(code: number) {
-    const message = 'Assertion failed. ';
+  constructor(code: errorCode) {
+    // const path = VERSION === 'latest' ? VERSION : 'v' + VERSION.split('-')[0];
+    const message = `Assertion failed. Error Code is ${code}. Current release is ${VERSION}`;
 
     super(message);
 
