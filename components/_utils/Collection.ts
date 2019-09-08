@@ -135,7 +135,7 @@ export default class Collection<T> extends BaseObject<T> {
     }
     this.array_.splice(index, 0, elem);
     this.updateLength_();
-    this.dispatchEvent(new CollectionEvent<T>(CollectionEventType.ADD, elem, index));
+    this.dispatchEvent(new CollectionEvent<T>(CollectionEventType.ADD, elem));
   }
 
   /**
@@ -190,7 +190,7 @@ export default class Collection<T> extends BaseObject<T> {
     const prev = this.array_[index];
     this.array_.splice(index, 1);
     this.updateLength_();
-    this.dispatchEvent(new CollectionEvent<T>(CollectionEventType.REMOVE, prev, index));
+    this.dispatchEvent(new CollectionEvent<T>(CollectionEventType.REMOVE, prev));
     return prev;
   }
 
@@ -233,7 +233,7 @@ export default class Collection<T> extends BaseObject<T> {
   private assertUnique_(elem?: T, except?: number) {
     for (let i = 0, ii = this.array_.length; i < ii; ++i) {
       if (this.array_[i] === elem && i !== except) {
-        throw new AssertionError(58);
+        // TODO: throw new AssertionError(58);
       }
     }
   }

@@ -12,18 +12,12 @@ export default class CollectionEvent<T> extends Event {
    */
   element: T;
   /**
-   * The index of the added or removed element.
-   */
-  index: number;
-  /**
    * @param {CollectionEventType} type Type.
    * @param {T} opt_element Element.
-   * @param {number} opt_index The index of the added or removed element.
    */
-  constructor(type: CollectionEventType, opt_element: T, opt_index: number) {
+  constructor(type: CollectionEventType, opt_element: T) {
     super(type);
 
     this.element = opt_element;
-    this.index = opt_index;
   }
 }

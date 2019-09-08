@@ -1,4 +1,4 @@
-import { Dictionary, IContext } from './interface';
+import { Dictionary } from './interface';
 import BaseObjectEvent from './BaseObjectEvent';
 import Observable from './Observable';
 

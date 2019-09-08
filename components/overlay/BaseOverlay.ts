@@ -6,22 +6,15 @@ import { Dictionary } from '../_utils/interface';
 import OverlayProperty from './Property';
 import AssertErrorCode from '../_utils/AssertErrorCode';
 import { assert } from '../_utils/assert';
+import MapProperty from '../map/Property';
 
-/**
- * @enum {string}
- * @protected
- */
-const Property = {
-  MAP: 'map',
-};
-
-export interface IOverlayOptions extends IBaseObject {
+export interface IBaseOverlayOptions extends IBaseObject {
   id?: string;
   visible?: boolean;
   opacity?: number;
 }
 
-class Overlay<T extends IOverlayOptions> extends BaseObject<T> {
+export default abstract class BaseOverlay<T extends IBaseOverlayOptions> extends BaseObject<T> {
   protected options: T;
   protected id: string;
   protected visible: boolean;
@@ -44,6 +37,14 @@ class Overlay<T extends IOverlayOptions> extends BaseObject<T> {
     this.id = options.id || getUid(this);
   }
 
+  protected getCtrl() {
+    return this.getMap().getCtrl();
+  }
+
+  abstract startup(): void;
+
+  abstract dispose(): void;
+
   /**
    * Get the overlay identifier which is set on constructor.
    * @return {string} Id.
@@ -53,8 +54,8 @@ class Overlay<T extends IOverlayOptions> extends BaseObject<T> {
     return this.id;
   }
 
-  setMap(map?: BaseMap) {
-    this.set(Property.MAP, map);
+  setMap(map: BaseMap) {
+    this.set(MapProperty.MAP, map);
   }
 
   /**
@@ -63,15 +64,15 @@ class Overlay<T extends IOverlayOptions> extends BaseObject<T> {
    * @observable
    * @api
    */
-  getMap(): BaseMap | undefined {
-    return this.get(Property.MAP);
+  getMap(): BaseMap {
+    return this.get(MapProperty.MAP) as BaseMap;
   }
 
   /**
    * returns the options this Overlay has been created with
-   * @return {IOverlayOptions} overlay options
+   * @return {IBaseOverlayOptions} overlay options
    */
-  getOptions(): IOverlayOptions {
+  getOptions(): IBaseOverlayOptions {
     return this.options;
   }
 
@@ -97,5 +98,3 @@ class Overlay<T extends IOverlayOptions> extends BaseObject<T> {
   hideFeature(featureId: string) {}
   hideAllFeatures() {}
 }
-
-export default Overlay;

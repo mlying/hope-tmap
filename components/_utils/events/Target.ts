@@ -69,17 +69,17 @@ export default class Target extends Disposable {
    * Object with a `type` property.
    *
    * @param {DispatchEvent} event BaseEvent object.
-   * @return {boolean|undefined} `false` if anyone called preventDefault on the event object or if any of the listeners returned false.
+   * @return {boolean} `false` if anyone called preventDefault on the event object or if any of the listeners returned false.
    * @api
    */
-  dispatchEvent(event: DispatchEventOptions): boolean | undefined {
+  dispatchEvent(event: DispatchEventOptions): boolean {
     const evt = typeof event === 'string' ? new BaseEvent(event) : event;
     const type = evt.type;
     if (!evt.target) {
       evt.target = this;
     }
     const listeners = this.listeners_[type];
-    let propagate;
+    let propagate = true;
     if (listeners) {
       if (!(type in this.dispatching_)) {
         this.dispatching_[type] = 0;
@@ -101,8 +101,8 @@ export default class Target extends Disposable {
         }
         delete this.dispatching_[type];
       }
-      return propagate;
     }
+    return propagate;
   }
 
   /**

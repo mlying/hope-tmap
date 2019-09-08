@@ -1,5 +1,5 @@
 import Disposable from '../_utils/Disposable';
-import BaseMap from '../map/BaseMap';
+import BaseMap, { IFrameState } from '../map/BaseMap';
 
 export default abstract class MapRenderer extends Disposable {
   protected map_: BaseMap;
@@ -12,7 +12,7 @@ export default abstract class MapRenderer extends Disposable {
     this.map_ = map;
   }
 
-  abstract renderFrame(): void;
+  abstract renderFrame(frameState: IFrameState): void;
 
   /**
    * @return {BaseMap} Map.

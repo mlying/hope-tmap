@@ -1,11 +1,13 @@
 import BaseLayer, { IBaseLayerOptions } from './Base';
 import { getUid } from '../_utils/util';
+import GroupLayer from './GroupLayer';
 
 export interface ILayerOptions extends IBaseLayerOptions {
   id?: string;
 }
 
 export default class Layer<T extends ILayerOptions> extends BaseLayer<T> {
+  static GroupLayer = GroupLayer;
   protected id: string;
   constructor(options: T) {
     super(options);

@@ -18,7 +18,7 @@ const map = new Map({
   target: 'Web3DCtrl',
 });
 
-const groupLayer = new GroupLayer({});
+const groupLayer = new GroupLayer({ xmlUrl: '' });
 
-map.addLayer(groupLayer);
+map.setGroupLayer(groupLayer);
 ```

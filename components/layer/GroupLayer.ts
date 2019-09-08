@@ -1,23 +1,40 @@
-import BaseObject from '../_utils/BaseObject';
+import BaseLayer, { IBaseLayerOptions } from './Base';
 import Feature from '../feature/Feature';
 import { IpositionObj, IfeatureInfo } from './interface';
-import Map from '../map';
+import { getUid } from '../_utils/util';
 
-export interface ILayerProps {
+export interface ILayerOptions extends IBaseLayerOptions {
   id: string;
+  xmlUrl: string;
 }
 
-export default class GroupLayer extends BaseObject<ILayerProps> {
+enum GroupLayerProperty {
+  XML_URL = 'xmlUrl',
+}
+
+export default class GroupLayer extends BaseLayer<ILayerOptions> {
   id: string;
-  private features: Feature[];
-  constructor(props: ILayerProps) {
-    super(props);
+  xmlUrl: string;
+  constructor(options: ILayerOptions) {
+    const properties: ILayerOptions = Object.assign({}, options);
+    properties[GroupLayerProperty.XML_URL] = options.xmlUrl;
 
-    this.id = props.id;
+    super(properties);
 
-    this.on('ok', res => {
-      console.log(res);
-    });
+    this.id = options.id || getUid(this);
+  }
+
+  private getCtrl() {
+    return this.getMap().getCtrl();
+  }
+
+  private getXmlUrl() {
+    return this.get<string>(GroupLayerProperty.XML_URL) as string;
+  }
+
+  startup() {
+    const params = [this.getXmlUrl()];
+    this.getCtrl().InvokeCmd('CommonOper', 'LoadXML', params);
   }
 
   /**
@@ -29,7 +46,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
     let param: string[] = [layerId, whereClause];
     let result: any;
     try {
-      result = Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'SelectFeature', param);
+      result = this.getCtrl().InvokeCmd('BaseLayerOper', 'SelectFeature', param);
     } catch (e) {
       console.log(e);
     }
@@ -46,7 +63,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
     let param: string[] = [layerId, whereClause, effect];
     let result: any;
     try {
-      result = Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'SelectFeatureAndEffect', param);
+      result = this.getCtrl().InvokeCmd('BaseLayerOper', 'SelectFeatureAndEffect', param);
     } catch (error) {
       console.log(error);
     }
@@ -63,7 +80,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
     let param: [string, string, any] = [layerId, wherePoint, nearRange];
     let result: any;
     try {
-      result = Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'SelectNearFeature', param);
+      result = this.getCtrl().InvokeCmd('BaseLayerOper', 'SelectNearFeature', param);
     } catch (error) {
       console.log(error);
     }
@@ -76,7 +93,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
    */
   clearAllEffect(layerId: string): void {
     try {
-      Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'ClearAllEffect', []);
+      this.getCtrl().InvokeCmd('BaseLayerOper', 'ClearAllEffect', []);
     } catch (error) {
       console.log(error);
     }
@@ -107,7 +124,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
   setFeatureEffect(layerId: string, featureId: string, gid: string, table: string, effect: string): void {
     let param = [JSON.stringify({ FeatureID: featureId, LayerID: layerId, Effect: effect, GID: gid, Table: table })];
     try {
-      Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'SetFeatureEffect', param);
+      this.getCtrl().InvokeCmd('BaseLayerOper', 'SetFeatureEffect', param);
     } catch (error) {
       console.log(error);
     }
@@ -121,7 +138,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
     let temp = { LayerID: layerId, Effect: '' };
     let param: string[] = [JSON.stringify(temp)];
     try {
-      Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'SetFeatureEffect', param);
+      this.getCtrl().InvokeCmd('BaseLayerOper', 'SetFeatureEffect', param);
     } catch (error) {
       console.log(error);
     }
@@ -147,7 +164,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
     let param: string[] = [gid, table.toLowerCase()];
     let result: IfeatureInfo = { featureID: '', layerID: '' };
     try {
-      let str = Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'GetFeatureByGID', param);
+      let str: string = this.getCtrl().InvokeCmd('BaseLayerOper', 'GetFeatureByGID', param);
       if (str !== '') {
         result.featureID = str.split(',')[0];
         result.layerID = str.split(',')[1];
@@ -178,7 +195,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
     let param = [layerId, featureId, gid, table];
     let result: any;
     try {
-      let str = Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'GetFeaturePosition', param);
+      let str: string = this.getCtrl().InvokeCmd('BaseLayerOper', 'GetFeaturePosition', param);
       if (str !== '' && Object.keys(JSON.parse(str)).length > 0) {
         let value = Object.values(JSON.parse(str));
         if (Object.keys(value).length > 0) {
@@ -200,7 +217,7 @@ export default class GroupLayer extends BaseObject<ILayerProps> {
   setFeatureVisible(layerId: string, featureId: Feature[], visible: boolean): void {
     let param = [featureId, layerId, visible];
     try {
-      Map.GetTDECtrl().InvokeCmd('BaseLayerOper', 'SetFeatureVisible', param);
+      this.getCtrl().InvokeCmd('BaseLayerOper', 'SetFeatureVisible', param);
     } catch (error) {
       console.log(error);
     }

@@ -1,5 +1,4 @@
 import BaseObject, { getChangeEventType } from '../_utils/BaseObject';
-import { AutoColor, ViewPoint } from './interface';
 import Layer, { ILayerOptions } from '../layer/Layer';
 import LayerList from '../layer/List';
 import { ITDECtrl, Dictionary } from '../_utils/interface';
@@ -8,15 +7,15 @@ import BaseEventType from '../_utils/events/BaseEventType';
 import BaseObjectEventType from '../_utils/BaseObjectEventType';
 import MapRenderer from '../renderer/MapRenderer';
 import Collection from '../_utils/Collection';
-import Overlay, { IOverlayOptions } from '../overlay/BaseOverlay';
+import Overlay, { IOverlayOptions } from '../overlay/Overlay';
 import { assert } from '../_utils/assert';
 import CollectionEvent from '../_utils/CollectionEvent';
 import CollectionEventType from '../_utils/CollectionEventType';
 import AssertErrorCode from '../_utils/AssertErrorCode';
+import GroupLayer from '../layer/GroupLayer';
+import MapProperty from './Property';
 
-export interface IFrameState {
-
-}
+export interface IFrameState {}
 
 export interface IMapOptions {
   target: string;
@@ -33,11 +32,6 @@ export interface IMapOptionsInternal {
   values: IMapOptionsValues;
   keyboardEventTarget: HTMLElement | Document | null;
   overlays: Collection<Overlay<IOverlayOptions>>;
-}
-
-export enum MapProperty {
-  LAYERLIST = 'layerlist',
-  TARGET = 'target',
 }
 
 function createOptionsInternal(options: IMapOptions): IMapOptionsInternal {
@@ -76,7 +70,7 @@ function createOptionsInternal(options: IMapOptions): IMapOptionsInternal {
 }
 
 function isLayerList(layers: any): layers is LayerList {
-  return layers && layers.getLayers === 'function';
+  return layers && layers.getLayerList === 'function';
 }
 
 export default class BaseMap extends BaseObject<IMapOptions> {
@@ -92,6 +86,7 @@ export default class BaseMap extends BaseObject<IMapOptions> {
    * A lookup of overlays by id.
    */
   private overlayIdIndex_: Dictionary<Overlay<IOverlayOptions>> = {};
+
   constructor(options: IMapOptions) {
     super();
 
@@ -108,28 +103,15 @@ export default class BaseMap extends BaseObject<IMapOptions> {
     this.overlays_ = optionsInternal.overlays;
     this.overlays_.forEach(this.addOverlayInternal_.bind(this));
 
-    listen(
-      this.overlays_,
-      CollectionEventType.ADD,
-      function(event: CollectionEvent<Overlay<IOverlayOptions>>) {
-        this.addOverlayInternal_(event.element);
-      },
-      this
-    );
+    listen(this.overlays_, CollectionEventType.ADD, (event: CollectionEvent<Overlay<IOverlayOptions>>) => {
+      this.addOverlayInternal_(event.element);
+    });
 
-    listen(
-      this.overlays_,
-      CollectionEventType.REMOVE,
-      function(event: CollectionEvent<Overlay<IOverlayOptions>>) {
-        const overlay = event.element;
-
-        delete this.overlayIdIndex_[overlay.getId()];
-
-        overlay.setMap();
-      },
-      this
-    );
+    listen(this.overlays_, CollectionEventType.REMOVE, (event: CollectionEvent<Overlay<IOverlayOptions>>) => {
+      this.removeOverlayInternal_(event.element);
+    });
   }
+
   private getTarget(): string | undefined {
     return this.get<string>('target');
   }
@@ -151,7 +133,15 @@ export default class BaseMap extends BaseObject<IMapOptions> {
   private addOverlayInternal_(overlay: Overlay<IOverlayOptions>) {
     const id = overlay.getId();
     this.overlayIdIndex_[id] = overlay;
+
     overlay.setMap(this);
+    overlay.startup();
+  }
+
+  private removeOverlayInternal_(overlay: Overlay<IOverlayOptions>) {
+    delete this.overlayIdIndex_[overlay.getId()];
+
+    overlay.dispose();
   }
 
   private handleLayerListChanged() {
@@ -159,14 +149,14 @@ export default class BaseMap extends BaseObject<IMapOptions> {
       this.layerGroupPropertyListenerKeys.forEach(unlistenByKey);
       this.layerGroupPropertyListenerKeys = undefined;
     }
-    const layerList = this.getLayers();
+    const layerList = this.getLayerList();
     if (layerList) {
       this.layerGroupPropertyListenerKeys = [
-        listen(layerList, BaseObjectEventType.PROPERTYCHANGE, this.renderMap, this),
-        listen(layerList, BaseEventType.CHANGE, this.renderMap, this),
+        listen(layerList, BaseObjectEventType.PROPERTYCHANGE, this.startup, this),
+        listen(layerList, BaseEventType.CHANGE, this.startup, this),
       ];
     }
-    this.renderMap();
+    this.startup();
   }
 
   private handleTargetChanged() {
@@ -212,18 +202,15 @@ export default class BaseMap extends BaseObject<IMapOptions> {
 
   private animationDelay_ = () => {
     this.animationDelayKey_ = undefined;
-    this.renderFrame_(Date.now());
+    this.startupFrame_(Date.now());
   };
 
-  private renderFrame_(time: number) {
-
-    const frameState = {
-
-    }
-    this.renderer_.renderFrame();
+  private startupFrame_(time: number) {
+    const frameState: IFrameState = {};
+    this.renderer_.renderFrame(frameState);
   }
 
-  private renderMap() {
+  private startup() {
     if (this.renderer_ && this.animationDelayKey_ === undefined) {
       this.animationDelayKey_ = requestAnimationFrame(this.animationDelay_);
     }
@@ -240,7 +227,12 @@ export default class BaseMap extends BaseObject<IMapOptions> {
     super.disposeInternal();
   }
 
-  getControl() {
+  setGroupLayer(groupLayer: GroupLayer) {
+    groupLayer.setMap(this);
+    groupLayer.startup();
+  }
+
+  getCtrl() {
     return this.ctrl;
   }
 
@@ -255,14 +247,14 @@ export default class BaseMap extends BaseObject<IMapOptions> {
     return this.ctrl.InvokeCmd('CommonOper', 'GetPlatform', null);
   }
 
-  getLayers(): LayerList {
+  getLayerList(): LayerList {
     const layers = this.get(MapProperty.LAYERLIST);
     assert(layers, AssertErrorCode.LAYERLIST_IS_NULL_IN_BASE_OF_MAP);
     return layers as LayerList;
   }
 
   addLayer(layer: Layer<ILayerOptions>) {
-    this.getLayers()
+    this.getLayerList()
       .getLayers()
       .push(layer);
   }
@@ -277,20 +269,20 @@ export default class BaseMap extends BaseObject<IMapOptions> {
    * @return {Layer<ILayerOptions>|undefined} The removed layer (or undefined if the layer was not found).
    */
   removeLayer(layer: Layer<ILayerOptions>): Layer<ILayerOptions> | undefined {
-    const layers = this.getLayers().getLayers();
+    const layers = this.getLayerList().getLayers();
     return layers.remove(layer);
   }
 
   isLayerExist(layerId: string): boolean {
-    return !!this.getLayers().getLayerById(layerId);
+    return !!this.getLayerList().getLayerById(layerId);
   }
 
   getLayerById(layerId: string) {
-    return this.getLayers().getLayerById(layerId);
+    return this.getLayerList().getLayerById(layerId);
   }
 
   getLayerNum(): number {
-    return this.getLayers()
+    return this.getLayerList()
       .getLayers()
       .getLength();
   }

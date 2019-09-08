@@ -1,7 +1,8 @@
 import MapRenderer from './MapRenderer';
+import { IFrameState } from '../map/BaseMap';
 
 export default class ScreenMapRenderer extends MapRenderer {
-  renderFrame(frameState) {
+  renderFrame(frameState: IFrameState) {
     // layerStatesArray.forEach(layerState => {
     //   const layer = layerState.layer;
     //   const layerRenderer = /** @type {import("./Layer.js").default} */ this.getLayerRenderer(layer);

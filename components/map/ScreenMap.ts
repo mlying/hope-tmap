@@ -1,8 +1,10 @@
 import BaseMap from './BaseMap';
+import MapRenderer from '../renderer/MapRenderer';
 import ScreenMapRenderer from '../renderer/ScreenMapRenderer';
 
 export default class ScreenMap extends BaseMap {
-  createRenderer(): ScreenMapRenderer {
-    return new ScreenMapRenderer(this);
+  createRenderer(): MapRenderer {
+    const renderer = new ScreenMapRenderer(this);
+    return renderer;
   }
 }
