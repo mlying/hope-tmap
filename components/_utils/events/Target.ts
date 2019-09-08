@@ -1,15 +1,15 @@
 /**
  * @module ol/events/Target
  */
-import Disposable from '../Disposable.js';
-import { unlistenAll } from '../events.js';
-import { noop } from '../functions.js';
-import BaseEvent from './BaseEvent.js';
-import { Dictionary } from '../interface.js';
+import Disposable from '../Disposable';
+import { unlistenAll } from '../events';
+import { noop } from '../functions';
+import BaseEvent from './BaseEvent';
+import { Dictionary } from '../interface';
 
 export type EventTargetLike = EventTarget | Target;
 
-export type DispatchEvent =
+export type DispatchEventOptions =
   | { type: string; target: EventTargetLike | undefined; propagationStopped: boolean | undefined }
   | BaseEvent
   | string;
@@ -72,7 +72,7 @@ export default class Target extends Disposable {
    * @return {boolean|undefined} `false` if anyone called preventDefault on the event object or if any of the listeners returned false.
    * @api
    */
-  dispatchEvent(event: DispatchEvent): boolean | undefined {
+  dispatchEvent(event: DispatchEventOptions): boolean | undefined {
     const evt = typeof event === 'string' ? new BaseEvent(event) : event;
     const type = evt.type;
     if (!evt.target) {

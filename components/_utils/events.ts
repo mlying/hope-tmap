@@ -1,10 +1,10 @@
 /**
  * @module _utils/events
  */
-import { clear } from './obj.js';
-import BaseEvent from './events/BaseEvent.js';
-import { EventTargetLike } from './events/Target.js';
-import { Dictionary, ListenerFunction } from './interface.js';
+import { clear } from './obj';
+import BaseEvent from './events/BaseEvent';
+import { EventTargetLike, ListenerFunction } from './events/Target';
+import { Dictionary } from './interface';
 
 /**
  * Key to use with {@link module:_utils/Observable~Observable#unByKey}.
@@ -46,20 +46,18 @@ export function bindListener(prevListenerObj: EventsKeyLike): EventsKey {
 }
 
 /**
- * Finds the matching {@link module:_utils/events~EventsKey} in the given listener
- * array.
+ * Finds the matching {@link module:_utils/events~EventsKey} in the given listener array.
  *
  * @param {!Array<!EventsKey>} listeners Array of listeners.
  * @param {!Function} listener The listener function.
- * @param {Object=} scope The `this` value inside the listener.
- * @param {boolean=} setDeleteIndex Set the deleteIndex on the matching
- *     listener, for {@link module:_utils/events~unlistenByKey}.
+ * @param {Object} [scope] The `this` value inside the listener.
+ * @param {boolean} [setDeleteIndex] Set the deleteIndex on the matching listener, for {@link module:_utils/events~unlistenByKey}.
  * @return {EventsKey|undefined} The matching listener object.
  */
 export function findListener(
   listeners: EventsKey[],
   listener: ListenerFunction,
-  scope?: object,
+  scope?: Object,
   setDeleteIndex?: boolean
 ): EventsKey | undefined {
   let listenerObj;
@@ -133,25 +131,20 @@ function removeListeners(target: EventTargetLike, type: string) {
 }
 
 /**
- * Registers an event listener on an event target. Inspired by
- * https://google.github.io/closure-library/api/source/closure/goog/events/events.js.src.html
- *
- * This function efficiently binds a `listener` to a `this` object, and returns
- * a key for use with {@link module:_utils/events~unlistenByKey}.
+ * Registers an event listener on an event target.
  *
  * @param {EventTargetLike} target Event target.
  * @param {string} type Event type.
  * @param {ListenerFunction} listener Listener.
- * @param {Object=} scope Object referenced by the `this` keyword in the
- *     listener. Default is the `target`.
- * @param {boolean=} once If true, add the listener as one-off listener.
+ * @param {Object} [scope] Object referenced by the `this` keyword in the listener. Default is the `target`.
+ * @param {boolean} [once] If true, add the listener as one-off listener.
  * @return {EventsKey} Unique key for the listener.
  */
 export function listen(
   target: EventTargetLike,
   type: string,
   listener: ListenerFunction,
-  scope?: object,
+  scope?: Object,
   once?: boolean
 ): EventsKey {
   const listenerMap = getListenerMap(target, true);
@@ -166,7 +159,7 @@ export function listen(
       listenerObj.callOnce = false;
     }
   } else {
-    let prevListenerObj = {
+    const prevListenerObj = {
       bindTo: scope,
       callOnce: !!once,
       listener: listener,
@@ -182,37 +175,25 @@ export function listen(
 }
 
 /**
- * Registers a one-off event listener on an event target. Inspired by
- * https://google.github.io/closure-library/api/source/closure/goog/events/events.js.src.html
- *
- * This function efficiently binds a `listener` as self-unregistering listener
- * to a `this` object, and returns a key for use with
- * {@link module:_utils/events~unlistenByKey} in case the listener needs to be
- * unregistered before it is called.
- *
- * When {@link module:_utils/events~listen} is called with the same arguments after this
- * function, the self-unregistering listener will be turned into a permanent
- * listener.
+ * Registers a one-off event listener on an event target.
  *
  * @param {EventTargetLike} target Event target.
  * @param {string} type Event type.
  * @param {ListenerFunction} listener Listener.
- * @param {Object=} scope Object referenced by the `this` keyword in the
- *     listener. Default is the `target`.
+ * @param {Object} [scope] Object referenced by the `this` keyword in the listener. Default is the `target`.
  * @return {EventsKey} Key for unlistenByKey.
  */
 export function listenOnce(
   target: EventTargetLike,
   type: string,
   listener: ListenerFunction,
-  scope?: object
+  scope?: Object
 ): EventsKey {
   return listen(target, type, listener, scope, true);
 }
 
 /**
- * Unregisters an event listener on an event target. Inspired by
- * https://google.github.io/closure-library/api/source/closure/goog/events/events.js.src.html
+ * Unregisters an event listener on an event target.
  *
  * To return a listener, this function needs to be called with the exact same
  * arguments that were used for a previous {@link module:_utils/events~listen} call.
@@ -220,8 +201,7 @@ export function listenOnce(
  * @param {EventTargetLike} target Event target.
  * @param {string} type Event type.
  * @param {ListenerFunction} listener Listener.
- * @param {Object=} scope Object referenced by the `this` keyword in the
- *     listener. Default is the `target`.
+ * @param {Object=} [scope] Object referenced by the `this` keyword in the listener. Default is the `target`.
  */
 export function unlisten(target: EventTargetLike, type: string, listener: ListenerFunction, scope?: object) {
   const listeners = getListeners(target, type);
@@ -240,15 +220,15 @@ export function unlisten(target: EventTargetLike, type: string, listener: Listen
  * The argument passed to this function is the key returned from
  * {@link module:_utils/events~listen} or {@link module:_utils/events~listenOnce}.
  *
- * @param {EventsKey} key The key.
+ * @param {EventsKey} [key] The key.
  */
-export function unlistenByKey(key: EventsKey) {
+export function unlistenByKey(key?: EventsKey) {
   if (key && key.target) {
-    /** @type {import("./events/Target.js").default} */ key.target.removeEventListener(key.type, key.boundListener);
+    key.target.removeEventListener(key.type, key.boundListener);
     const listeners = getListeners(key.target, key.type);
     if (listeners) {
       const i = 'deleteIndex' in key ? key.deleteIndex : listeners.indexOf(key);
-      if (i !== -1) {
+      if (typeof i === 'number' && i !== -1) {
         listeners.splice(i, 1);
       }
       if (listeners.length === 0) {

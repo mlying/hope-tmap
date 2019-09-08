@@ -1,4 +1,4 @@
-import { Dictionary } from './interface';
+import { Dictionary, IContext } from './interface';
 import BaseObjectEvent from './BaseObjectEvent';
 import Observable from './Observable';
 
@@ -14,7 +14,9 @@ export const ObjectEventType = {
   PROPERTYCHANGE: 'propertychange',
 };
 
-export default class BaseObject<P extends Dictionary<any>> extends Observable {
+export type IBaseObject = Dictionary<any>;
+
+export default class BaseObject<P extends IBaseObject> extends Observable {
   private values: Dictionary<any> = {};
   constructor(options?: P) {
     super(); //must call super for "this" to be defined.

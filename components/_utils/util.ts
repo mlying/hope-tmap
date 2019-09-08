@@ -5,6 +5,6 @@ export const VERSION: string = 'latest';
  */
 let uidCounter: number = 0;
 
-export function getUid(obj: any) {
-  return obj.ol_uid || (obj.ol_uid = String(++uidCounter));
+export function getUid(obj: any): string {
+  return obj.htmap_uid || (obj.htmap_uid = String(++uidCounter));
 }

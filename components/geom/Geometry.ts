@@ -1,4 +1,4 @@
-import BaseComponent from '../_utils/Base';
+import BaseComponent from '../_utils/BaseObject';
 
 export interface IGeometryProps {
   id: string;

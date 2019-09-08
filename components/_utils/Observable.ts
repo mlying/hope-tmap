@@ -1,6 +1,6 @@
-import { listen, unlistenByKey, unlisten, listenOnce, EventsKey } from './events.js';
-import EventTarget, { ListenerFunction } from './events/Target.js';
-import BaseEventType from './events/BaseEventType.js';
+import { listen, unlistenByKey, unlisten, listenOnce, EventsKey } from './events';
+import EventTarget, { ListenerFunction } from './events/Target';
+import BaseEventType from './events/BaseEventType';
 
 /**
  * @classdesc

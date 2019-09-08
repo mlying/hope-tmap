@@ -1,28 +1,18 @@
-import Feature from '../feature/Feature';
-import Map from '../map';
-import GroupLayer from './GroupLayer';
-import BaseLayer, { IBaseLayer } from './Base';
+import BaseLayer, { IBaseLayerOptions } from './Base';
+import { getUid } from '../_utils/util';
 
-export interface ILayer extends IBaseLayer {
-  id: string;
+export interface ILayerOptions extends IBaseLayerOptions {
+  id?: string;
 }
 
-export default class Layer extends BaseLayer<ILayer> {
-  private features: Feature[];
-  static GroupLayer = GroupLayer;
-  constructor(props: ILayer) {
-    super(props);
+export default class Layer<T extends ILayerOptions> extends BaseLayer<T> {
+  protected id: string;
+  constructor(options: T) {
+    super(options);
 
-    this.on('ok', res => {
-      console.log(res);
-    });
+    this.id = options.id || getUid(this);
   }
-
-  addFeature(feature: Feature) {}
-  removeFeature(featureId: string) {}
-  removeAllFeatures() {}
-  hideFeature(featureId: string) {}
-  hideAllFeatures() {}
-  getMap(): Map {}
-  getFeature(featureId: string): Feature {}
+  getId() {
+    return this.id;
+  }
 }

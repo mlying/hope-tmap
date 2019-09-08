@@ -1,9 +1,9 @@
 /**
  * @module ol/Collection
  */
-import AssertionError from './AssertionError.js';
-import CollectionEventType from './CollectionEventType.js';
-import BaseObject from './BaseObject.js';
+import AssertionError from './AssertionError';
+import CollectionEventType from './CollectionEventType';
+import BaseObject from './BaseObject';
 import CollectionEvent from './CollectionEvent';
 
 /**
@@ -14,17 +14,11 @@ enum Property {
   LENGTH = 'length',
 }
 
-export interface ICollection<T> {
-  arr: T[];
+export interface ICollectionOptions {
   /**
-   * the collection twice.
+   * Disallow the same item from being added to
    */
-  options: {
-    /**
-     * Disallow the same item from being added to
-     */
-    unique?: boolean;
-  };
+  unique?: boolean;
 }
 
 /**
@@ -35,18 +29,17 @@ export interface ICollection<T> {
  * @template T
  * @api
  */
-export default class Collection<T> extends BaseObject<ICollection<T>> {
+export default class Collection<T> extends BaseObject<T> {
   private unique_: boolean;
-  private array_: (T)[];
+  private array_: T[];
   /**
-   * @param {ICollection=} opt Collection options.
+   * @param {T[]} arr Array.
+   * @param {ICollectionOptions} [options] Collection options.
    */
-  constructor(opt: ICollection<T>) {
-    super(opt);
+  constructor(arr: T[] = [], options: ICollectionOptions = {}) {
+    super();
 
-    const { options, arr = [] } = opt;
-
-    this.unique_ = options ? !!options.unique : false;
+    this.unique_ = !!options.unique;
     this.array_ = arr;
 
     if (this.unique_) {
@@ -89,11 +82,12 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
    *     index and the array). The return value is ignored.
    * @api
    */
-  forEach(f: (arg0: T, arg1: number, arg2: (T)[]) => void) {
-    const array = this.array_;
-    for (let i = 0, ii = array.length; i < ii; ++i) {
-      f(array[i], i, array);
-    }
+  forEach(f: (arg0: T, arg1: number, arg2: T[]) => void) {
+    this.array_.forEach(f);
+  }
+
+  filter(f: (arg0: T, arg1: number, arg2: T[]) => void) {
+    return this.array_.filter(f);
   }
 
   /**
@@ -141,7 +135,7 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
     }
     this.array_.splice(index, 0, elem);
     this.updateLength_();
-    this.dispatchEvent(new CollectionEvent(CollectionEventType.ADD, elem, index));
+    this.dispatchEvent(new CollectionEvent<T>(CollectionEventType.ADD, elem, index));
   }
 
   /**
@@ -196,7 +190,7 @@ export default class Collection<T> extends BaseObject<ICollection<T>> {
     const prev = this.array_[index];
     this.array_.splice(index, 1);
     this.updateLength_();
-    this.dispatchEvent(new CollectionEvent(CollectionEventType.REMOVE, prev, index));
+    this.dispatchEvent(new CollectionEvent<T>(CollectionEventType.REMOVE, prev, index));
     return prev;
   }
 

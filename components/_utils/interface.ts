@@ -15,3 +15,7 @@ export interface ITDECtrl extends HTMLObjectElement {
    */
   InvokeCmd<T>(clsName: string, funcName: string, opt: any): T;
 }
+
+export interface IContext {
+  ctrl: ITDECtrl;
+}

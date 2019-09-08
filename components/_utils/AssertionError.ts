@@ -1,14 +1,15 @@
 import { VERSION } from './util';
+import AssertErrorCode from './AssertErrorCode';
 
 class AssertionError extends Error {
   /**
    * Error code.
    */
-  code: errorCode;
+  code: AssertErrorCode;
   /**
    * @param {errorCode} code Error code.
    */
-  constructor(code: errorCode) {
+  constructor(code: AssertErrorCode) {
     // const path = VERSION === 'latest' ? VERSION : 'v' + VERSION.split('-')[0];
     const message = `Assertion failed. Error Code is ${code}. Current release is ${VERSION}`;
 
