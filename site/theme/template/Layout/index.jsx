@@ -34,12 +34,6 @@ export default class Layout extends React.Component {
   }
 
   componentDidMount() {
-    if (typeof window.ga !== 'undefined') {
-      this.context.router.listen((loc) => {
-        window.ga('send', 'pageview', loc.pathname + loc.search);
-      });
-    }
-
     const nprogressHiddenStyle = document.getElementById('nprogress-style');
     if (nprogressHiddenStyle) {
       this.timer = setTimeout(() => {

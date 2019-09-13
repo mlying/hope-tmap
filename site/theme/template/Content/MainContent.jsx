@@ -52,7 +52,7 @@ export default class MainContent extends React.Component {
     this.componentDidUpdate();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const openKeys = this.getSideBarOpenKeys(nextProps);
     if (openKeys) {
       this.setState({ openKeys });
