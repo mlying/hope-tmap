@@ -1,6 +1,6 @@
 import BaseLayer, { IBaseLayerOptions } from './Base';
-import { getUid } from '../_utils/util';
 import GroupLayer from './GroupLayer';
+import { getUid } from '../_utils/util';
 
 export interface ILayerOptions extends IBaseLayerOptions {
   id?: string;
