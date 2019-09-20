@@ -65,6 +65,9 @@ module.exports = {
     verbose: true,
     plugins: ['dora-plugin-upload'],
   },
+  devServerConfig: {
+    disableHostCheck: true,
+  },
   webpackConfig(config) {
     config.resolve.alias = {
       'hope-tmap/lib': path.join(process.cwd(), 'components'),

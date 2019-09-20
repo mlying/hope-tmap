@@ -1,14 +1,16 @@
-import BaseComponent from '../_utils/BaseObject';
+import BaseFeature from './Base';
+import LabelFeature from './LabelFeature';
 
 export interface IFeatureProps {
-  id: string;
+  layerId?: string;
+  featureId?: string;
 }
 
-export default class Feature extends BaseComponent<IFeatureProps> {
-  private id: string;
+export default class Feature extends BaseFeature<IFeatureProps> {
+  static LabelFeature = LabelFeature;
+  protected id: string;
   constructor(props: IFeatureProps) {
     super(props);
-
-    this.id = props.id;
   }
+  toJSON(){}
 }

@@ -34,6 +34,7 @@ export default class GroupLayer extends BaseLayer<ILayerOptions> {
 
   startup() {
     const params = [this.getXmlUrl()];
+    console.log(this.getCtrl());
     this.getCtrl().InvokeCmd('CommonOper', 'LoadXML', params);
   }
 
