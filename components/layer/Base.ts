@@ -27,8 +27,14 @@ export default abstract class BaseLayer<P extends IBaseLayerOptions> extends Bas
     this.map = map;
   }
 
+  abstract startup(): void;
+
   getMap(): BaseMap {
     return this.map;
+  }
+
+  getCtrl() {
+    return this.getMap().getCtrl();
   }
 
   getVisible() {

@@ -133,7 +133,7 @@ export default class Target extends Disposable {
 
   /**
    * @param {string} type Type.
-   * @param {import("../events.js").ListenerFunction} listener Listener.
+   * @param {ListenerFunction} listener Listener.
    */
   removeEventListener(type: string, listener: ListenerFunction) {
     const listeners = this.listeners_[type];

@@ -56,6 +56,8 @@ function createOptionsInternal(options: IMapOptions): IMapOptionsInternal {
     : new OverlayList({ layers: options.overlays || [] });
   values[MapProperty.OVERLAYLIST] = overlayList;
 
+  values[MapProperty.TARGET] = options.target;
+
   // let overlays;
   // if (options.overlays !== undefined) {
   //   if (Array.isArray(options.overlays)) {
@@ -194,22 +196,6 @@ export default class BaseMap extends BaseObject<IMapOptions> {
     const type = optType || browserEvent.type;
     // TODO: 再说
     console.log(type);
-  }
-
-  private animationDelay_ = () => {
-    this.animationDelayKey_ = undefined;
-    this.startupFrame_(Date.now());
-  };
-
-  private startupFrame_(time: number) {
-    const frameState: IFrameState = {};
-    this.renderer_.renderFrame(frameState);
-  }
-
-  private startup() {
-    if (this.renderer_ && this.animationDelayKey_ === undefined) {
-      this.animationDelayKey_ = requestAnimationFrame(this.animationDelay_);
-    }
   }
 
   protected createRenderer(): MapRenderer {

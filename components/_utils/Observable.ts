@@ -1,5 +1,5 @@
 import { listen, unlistenByKey, unlisten, listenOnce, EventsKey } from './events';
-import EventTarget, { ListenerFunction } from './events/Target';
+import EventTarget, { ListenerFunction } from './events/BaseEventTarget';
 import BaseEventType from './events/BaseEventType';
 
 /**

@@ -96,7 +96,7 @@ export default class BaseObject<P extends IBaseObject> extends Observable {
    * @param {boolean} [silent] Update without triggering an event.
    * @api
    */
-  setProperties(values: Dictionary<string>, silent?: boolean) {
+  setProperties(values: Dictionary<any>, silent?: boolean) {
     for (const key in values) {
       this.set(key, values[key], silent);
     }

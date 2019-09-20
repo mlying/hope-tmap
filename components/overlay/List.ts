@@ -23,10 +23,6 @@ export default class OverlayList extends BaseOverlay<IOverLayList> {
    * 图层组的事件监听
    */
   private layersListenerKeys_: EventsKey[];
-  /**
-   * 图层的事件监听
-   */
-  private listenerKeys_: Dictionary<EventsKey[]>;
   constructor(options: IOverLayList) {
     const baseOptions = Object.assign({}, options || {});
     delete baseOptions.layers;
@@ -36,7 +32,6 @@ export default class OverlayList extends BaseOverlay<IOverLayList> {
     super(baseOptions);
 
     this.layersListenerKeys_ = [];
-    this.listenerKeys_ = {};
 
     listen(this, getChangeEventType(Property.OVERLAYS), this.handleLayersChanged_, this);
 
@@ -53,11 +48,12 @@ export default class OverlayList extends BaseOverlay<IOverLayList> {
 
     layers.forEach(this.addLayerInternal_.bind(this));
 
-    this.setLayers(layers);
+    this.set(Property.OVERLAYS, layers);
   }
 
   private addLayerInternal_(layer: OverLay<IOverlayOptions>) {
     layer.setMap(this.getMap());
+    layer.startup();
   }
 
   private handleLayersChanged_() {
@@ -66,16 +62,13 @@ export default class OverlayList extends BaseOverlay<IOverLayList> {
 
     const layers = this.getLayers();
     this.layersListenerKeys_.push(
-      listen(layers, CollectionEventType.ADD, this.handleLayersAdd_, this),
-      listen(layers, CollectionEventType.REMOVE, this.handleLayersRemove_, this)
+      listen(layers, CollectionEventType.ADD, (collectionEvent: CollectionEvent<OverLay<IOverlayOptions>>) => {
+        this.handleLayersAdd_(collectionEvent);
+      }),
+      listen(layers, CollectionEventType.REMOVE, (collectionEvent: CollectionEvent<OverLay<IOverlayOptions>>) => {
+        this.handleOverlaysRemove_(collectionEvent);
+      })
     );
-
-    for (const id in this.listenerKeys_) {
-      this.listenerKeys_[id].forEach(unlistenByKey);
-    }
-    clear(this.listenerKeys_);
-
-    this.changed();
   }
 
   /**
@@ -84,6 +77,7 @@ export default class OverlayList extends BaseOverlay<IOverLayList> {
    */
   private handleLayersAdd_(collectionEvent: CollectionEvent<OverLay<IOverlayOptions>>) {
     const overlay = collectionEvent.element;
+    overlay.setMap(this.getMap());
     overlay.startup();
   }
 
@@ -91,13 +85,9 @@ export default class OverlayList extends BaseOverlay<IOverLayList> {
    * @param {CollectionEvent} collectionEvent CollectionEvent.
    * @private
    */
-  private handleLayersRemove_(collectionEvent: CollectionEvent<OverLay<IOverlayOptions>>) {
+  private handleOverlaysRemove_(collectionEvent: CollectionEvent<OverLay<IOverlayOptions>>) {
     const overlay = collectionEvent.element;
     overlay.dispose();
-  }
-
-  setLayers(layers: Collection<OverLay<IOverlayOptions>>) {
-    this.set(Property.OVERLAYS, layers);
   }
 
   getLayers() {

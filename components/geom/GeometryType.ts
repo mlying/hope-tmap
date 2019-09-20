@@ -6,6 +6,7 @@ enum GeometryType {
   POLYGON = 'polygon',
   POLYLINE = 'polyline',
   ARROW = 'arrow',
+  POINT = 'point',
 }
 
 export default GeometryType;

@@ -24,17 +24,12 @@ export default class GroupLayer extends BaseLayer<ILayerOptions> {
     this.id = options.id || getUid(this);
   }
 
-  private getCtrl() {
-    return this.getMap().getCtrl();
-  }
-
   private getXmlUrl() {
     return this.get<string>(GroupLayerProperty.XML_URL) as string;
   }
 
   startup() {
     const params = [this.getXmlUrl()];
-    console.log(this.getCtrl());
     this.getCtrl().InvokeCmd('CommonOper', 'LoadXML', params);
   }
 

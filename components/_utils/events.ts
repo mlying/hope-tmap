@@ -3,7 +3,7 @@
  */
 import { clear } from './obj';
 import BaseEvent from './events/BaseEvent';
-import { EventTargetLike, ListenerFunction } from './events/Target';
+import { EventTargetLike, ListenerFunction } from './events/BaseEventTarget';
 import { Dictionary } from './interface';
 
 /**
@@ -24,21 +24,18 @@ export interface EventsKey extends EventsKeyLike {
 }
 
 /**
- * @param {EventsKey} listenerObj Listener object.
- * @return {ListenerFunction} Bound listener.
+ * @param {EventsKeyLike} prevListenerObj Listener object.
+ * @return {EventsKey} Bound listener.
  */
 export function bindListener(prevListenerObj: EventsKeyLike): EventsKey {
-  let boundListener =
-    typeof prevListenerObj.listener === 'function'
-      ? prevListenerObj.listener
-      : function(evt: Event | BaseEvent) {
-          const listener = listenerObj.listener;
-          const bindTo = listenerObj.bindTo || listenerObj.target;
-          if (listenerObj.callOnce) {
-            unlistenByKey(listenerObj);
-          }
-          return listener.call(bindTo, evt);
-        };
+  const boundListener = function(evt: Event | BaseEvent) {
+    const listener = listenerObj.listener;
+    const bindTo = listenerObj.bindTo || listenerObj.target;
+    if (listenerObj.callOnce) {
+      unlistenByKey(listenerObj);
+    }
+    return listener.call(bindTo, evt);
+  };
 
   const listenerObj: EventsKey = { ...prevListenerObj, boundListener };
 

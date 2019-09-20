@@ -19,6 +19,4 @@ export default abstract class Geometry<T extends IGeometryProps> extends BaseCom
   getType(): GeometryType {
     return this.type;
   }
-
-  abstract toJson(): string;
 }

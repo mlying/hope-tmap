@@ -6,6 +6,8 @@ import OverlayProperty from './Property';
 import AssertErrorCode from '../_utils/AssertErrorCode';
 import { assert } from '../_utils/assert';
 import MapProperty from '../map/Property';
+import Feature from '../feature';
+import { IFeatureProps } from '../feature/Feature';
 
 export interface IBaseOverlayOptions extends IBaseObject {
   id?: string;
@@ -87,8 +89,8 @@ export default abstract class BaseOverlay<T extends IBaseOverlayOptions> extends
     this.set(OverlayProperty.OPACITY, opacity);
   }
 
-  addFeature(feature: Feature) {}
-  removeFeature(featureId: string) {}
+  addFeature(feature: Feature<IFeatureProps>) {}
+  removeFeature(feature: Feature<IFeatureProps>) {}
   removeAllFeatures() {}
   hideFeature(featureId: string) {}
   hideAllFeatures() {}

@@ -17,4 +17,6 @@ export default class Layer<T extends ILayerOptions> extends BaseLayer<T> {
   getId() {
     return this.id;
   }
+
+  startup() {}
 }

@@ -8,9 +8,6 @@ import { assert } from '../_utils/assert';
 import CollectionEventType from '../_utils/CollectionEventType';
 import CollectionEvent from '../_utils/CollectionEvent';
 import { getUid } from '../_utils/util';
-import BaseEventType from '../_utils/events/BaseEventType';
-import BaseObjectEventType from '../_utils/BaseObjectEventType';
-import { clear } from '../_utils/obj';
 import AssertErrorCode from '../_utils/AssertErrorCode';
 
 enum Property {
@@ -56,11 +53,12 @@ export default class LayerList extends BaseLayer<ILayerList> {
 
     layers.forEach(this.addLayerInternal_.bind(this));
 
-    this.setLayers(layers);
+    this.set(Property.LAYERS, layers);
   }
 
   private addLayerInternal_(layer: Layer<ILayerOptions>) {
     layer.setMap(this.getMap());
+    layer.startup();
   }
 
   private handleLayersChanged_() {
@@ -69,61 +67,65 @@ export default class LayerList extends BaseLayer<ILayerList> {
 
     const layers = this.getLayers();
     this.layersListenerKeys_.push(
-      listen(layers, CollectionEventType.ADD, this.handleLayersAdd_, this),
-      listen(layers, CollectionEventType.REMOVE, this.handleLayersRemove_, this)
+      listen(layers, CollectionEventType.ADD, (collectionEvent: CollectionEvent<Layer<ILayerOptions>>) => {
+        this.handleLayersAdd_(collectionEvent);
+      }),
+      listen(layers, CollectionEventType.REMOVE, (collectionEvent: CollectionEvent<Layer<ILayerOptions>>) => {
+        this.handleLayersRemove_(collectionEvent);
+      })
     );
 
-    for (const id in this.listenerKeys_) {
-      this.listenerKeys_[id].forEach(unlistenByKey);
-    }
-    clear(this.listenerKeys_);
+    // for (const id in this.listenerKeys_) {
+    //   this.listenerKeys_[id].forEach(unlistenByKey);
+    // }
+    // clear(this.listenerKeys_);
 
-    layers
-      .filter(layer => layer)
-      .forEach(layer => {
-        this.listenerKeys_[getUid(layer)] = [
-          listen(layer, BaseObjectEventType.PROPERTYCHANGE, this.handleLayerChange_, this),
-          listen(layer, BaseEventType.CHANGE, this.handleLayerChange_, this),
-        ];
-      });
+    // layers
+    //   .filter(layer => layer)
+    //   .forEach(layer => {
+    //     this.listenerKeys_[getUid(layer)] = [
+    //       listen(layer, BaseObjectEventType.PROPERTYCHANGE, this.handleLayerChange_, this),
+    //       listen(layer, BaseEventType.CHANGE, this.handleLayerChange_, this),
+    //     ];
+    //   });
 
-    this.changed();
+    // this.changed();
   }
 
   /**
-   * @param {CollectionEvent} collectionEvent CollectionEvent.
+   * @param {CollectionEvent<Layer<ILayerOptions>>} collectionEvent CollectionEvent.
    * @private
    */
-  private handleLayersAdd_(collectionEvent: CollectionEvent<any>) {
+  private handleLayersAdd_(collectionEvent: CollectionEvent<Layer<ILayerOptions>>) {
     const layer = collectionEvent.element;
+    layer.setMap(this.getMap());
     layer.startup();
 
-    this.listenerKeys_[getUid(layer)] = [
-      listen(layer, BaseObjectEventType.PROPERTYCHANGE, this.handleLayerChange_, this),
-      listen(layer, BaseEventType.CHANGE, this.handleLayerChange_, this),
-    ];
-    this.changed();
+    // this.listenerKeys_[getUid(layer)] = [
+    //   listen(layer, BaseObjectEventType.PROPERTYCHANGE, this.handleLayerChange_, this),
+    //   listen(layer, BaseEventType.CHANGE, this.handleLayerChange_, this),
+    // ];
+    // this.changed();
   }
 
   /**
-   * @param {import("../Collection.js").CollectionEvent} collectionEvent CollectionEvent.
+   * @param {CollectionEvent<Layer<ILayerOptions>>} collectionEvent CollectionEvent.
    * @private
    */
-  private handleLayersRemove_(collectionEvent: CollectionEvent<any>) {
+  private handleLayersRemove_(collectionEvent: CollectionEvent<Layer<ILayerOptions>>) {
     const layer = collectionEvent.element;
-    const key = getUid(layer);
-    this.listenerKeys_[key].forEach(unlistenByKey);
-    delete this.listenerKeys_[key];
-    this.changed();
+    layer.dispose();
+    // const key = getUid(layer);
+    // this.listenerKeys_[key].forEach(unlistenByKey);
+    // delete this.listenerKeys_[key];
+    // this.changed();
   }
 
   private handleLayerChange_() {
     this.changed();
   }
 
-  setLayers(layers: Collection<Layer<ILayerOptions>>) {
-    this.set(Property.LAYERS, layers);
-  }
+  startup() {}
 
   getLayers() {
     const layers = this.get(Property.LAYERS);
