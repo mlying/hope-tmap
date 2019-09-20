@@ -33,6 +33,7 @@ export default class Demo extends React.Component {
       copyTooltipVisible: false,
       objectMount: false,
     };
+    this.renderLiveFirst = true;
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -89,6 +90,7 @@ export default class Demo extends React.Component {
   };
 
   renderLive() {
+    this.renderLiveFirst = false;
     const { meta, src, preview } = this.props;
     if (this.liveDemo) {
       return this.liveDemo;
@@ -199,7 +201,7 @@ ${state.sourceCode.replace('mountNode', "document.getElementById('container')")}
             standby="正在加载请稍后..."
             style={{ height: 500 }}
           >
-            {state.objectMount && this.renderLive()}
+            {state.objectMount && this.renderLiveFirst && this.renderLive()}
           </object>
           {style ? <style dangerouslySetInnerHTML={{ __html: style }} /> : null}
         </section>
