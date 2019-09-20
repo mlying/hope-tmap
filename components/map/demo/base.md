@@ -20,5 +20,6 @@ const map = new Map({
 
 const groupLayer = new GroupLayer({ xmlUrl: '' });
 
-map.setGroupLayer(groupLayer);
+// map.setGroupLayer(groupLayer);
+map.addLayer(groupLayer)
 ```

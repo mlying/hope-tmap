@@ -96,6 +96,8 @@ export default class LayerList extends BaseLayer<ILayerList> {
    */
   private handleLayersAdd_(collectionEvent: CollectionEvent<any>) {
     const layer = collectionEvent.element;
+    layer.startup();
+
     this.listenerKeys_[getUid(layer)] = [
       listen(layer, BaseObjectEventType.PROPERTYCHANGE, this.handleLayerChange_, this),
       listen(layer, BaseEventType.CHANGE, this.handleLayerChange_, this),

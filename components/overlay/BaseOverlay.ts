@@ -1,5 +1,4 @@
-import BaseObject, { IBaseObject, getChangeEventType } from '../_utils/BaseObject';
-import { listen } from '../_utils/events';
+import BaseObject, { IBaseObject } from '../_utils/BaseObject';
 import BaseMap from '../map/BaseMap';
 import { getUid } from '../_utils/util';
 import { Dictionary } from '../_utils/interface';
@@ -40,10 +39,6 @@ export default abstract class BaseOverlay<T extends IBaseOverlayOptions> extends
   protected getCtrl() {
     return this.getMap().getCtrl();
   }
-
-  abstract startup(): void;
-
-  abstract dispose(): void;
 
   /**
    * Get the overlay identifier which is set on constructor.

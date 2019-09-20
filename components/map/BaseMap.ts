@@ -1,6 +1,7 @@
 import BaseObject, { getChangeEventType } from '../_utils/BaseObject';
 import Layer, { ILayerOptions } from '../layer/Layer';
 import LayerList from '../layer/List';
+import OverlayList from '../overlay/List';
 import { ITDECtrl, Dictionary } from '../_utils/interface';
 import { listen, EventsKey, unlistenByKey, unlisten } from '../_utils/events';
 import BaseEventType from '../_utils/events/BaseEventType';
@@ -19,19 +20,21 @@ export interface IFrameState {}
 
 export interface IMapOptions {
   target: string;
-  layers: LayerList | Layer<ILayerOptions>[] | Collection<Layer<ILayerOptions>>;
-  overlays?: Collection<Overlay<IOverlayOptions>> | Overlay<IOverlayOptions>[];
+  layers?: LayerList | Layer<ILayerOptions>[] | Collection<Layer<ILayerOptions>>;
+  overlays?: OverlayList | Overlay<IOverlayOptions>[] | Collection<Overlay<IOverlayOptions>>;
   keyboardEventTarget?: HTMLElement | Document | string;
 }
 
 export interface IMapOptionsValues extends Dictionary<any> {
+  target: string;
   layerlist: LayerList;
+  overlayList: OverlayList;
 }
 
 export interface IMapOptionsInternal {
   values: IMapOptionsValues;
   keyboardEventTarget: HTMLElement | Document | null;
-  overlays: Collection<Overlay<IOverlayOptions>>;
+  // overlays: Collection<Overlay<IOverlayOptions>>;
 }
 
 function createOptionsInternal(options: IMapOptions): IMapOptionsInternal {
@@ -45,32 +48,40 @@ function createOptionsInternal(options: IMapOptions): IMapOptionsInternal {
         : options.keyboardEventTarget;
   }
 
-  const layerList = isLayerList(options.layers) ? options.layers : new LayerList({ layers: options.layers });
-
+  const layerList = isLayerList(options.layers) ? options.layers : new LayerList({ layers: options.layers || [] });
   values[MapProperty.LAYERLIST] = layerList;
 
-  let overlays;
-  if (options.overlays !== undefined) {
-    if (Array.isArray(options.overlays)) {
-      overlays = new Collection<Overlay<IOverlayOptions>>(options.overlays.slice());
-    } else {
-      // layers 应该为 array 或者 Collection
-      assert(typeof options.overlays.getArray === 'function', AssertErrorCode.LAYERS_IS_NOT_ARRAY_AND_COLLECTION);
-      overlays = options.overlays;
-    }
-  } else {
-    overlays = new Collection<Overlay<IOverlayOptions>>();
-  }
+  const overlayList = isOverLayList(options.overlays)
+    ? options.overlays
+    : new OverlayList({ layers: options.overlays || [] });
+  values[MapProperty.OVERLAYLIST] = overlayList;
+
+  // let overlays;
+  // if (options.overlays !== undefined) {
+  //   if (Array.isArray(options.overlays)) {
+  //     overlays = new Collection<Overlay<IOverlayOptions>>(options.overlays.slice());
+  //   } else {
+  //     // layers 应该为 array 或者 Collection
+  //     assert(typeof options.overlays.getArray === 'function', AssertErrorCode.LAYERS_IS_NOT_ARRAY_AND_COLLECTION);
+  //     overlays = options.overlays;
+  //   }
+  // } else {
+  //   overlays = new Collection<Overlay<IOverlayOptions>>();
+  // }
 
   return {
     values: values as IMapOptionsValues,
     keyboardEventTarget,
-    overlays,
+    // overlays,
   };
 }
 
 function isLayerList(layers: any): layers is LayerList {
   return layers && layers.getLayerList === 'function';
+}
+
+function isOverLayList(overlays: any): overlays is OverlayList {
+  return overlays && overlays.getLayerList === 'function';
 }
 
 export default class BaseMap extends BaseObject<IMapOptions> {
@@ -81,35 +92,27 @@ export default class BaseMap extends BaseObject<IMapOptions> {
   private keyHandlerKeys_: EventsKey[] | null;
   private renderer_: MapRenderer;
 
-  private overlays_: Collection<Overlay<IOverlayOptions>>;
-  /**
-   * A lookup of overlays by id.
-   */
-  private overlayIdIndex_: Dictionary<Overlay<IOverlayOptions>> = {};
-
   constructor(options: IMapOptions) {
     super();
 
     const optionsInternal = createOptionsInternal(options);
 
-    const layers = optionsInternal.values[MapProperty.LAYERLIST];
-    layers.setMap(this);
-
+    listen(this, getChangeEventType(MapProperty.OVERLAYLIST), this.handleOverlayListChanged, this);
     listen(this, getChangeEventType(MapProperty.LAYERLIST), this.handleLayerListChanged, this);
     listen(this, getChangeEventType(MapProperty.TARGET), this.handleTargetChanged, this);
 
     this.setProperties(optionsInternal.values);
 
-    this.overlays_ = optionsInternal.overlays;
-    this.overlays_.forEach(this.addOverlayInternal_.bind(this));
+    // this.overlays_ = optionsInternal.overlays;
+    // this.overlays_.forEach(this.addOverlayInternal_.bind(this));
 
-    listen(this.overlays_, CollectionEventType.ADD, (event: CollectionEvent<Overlay<IOverlayOptions>>) => {
-      this.addOverlayInternal_(event.element);
-    });
+    // listen(this.overlays_, CollectionEventType.ADD, (event: CollectionEvent<Overlay<IOverlayOptions>>) => {
+    //   this.addOverlayInternal_(event.element);
+    // });
 
-    listen(this.overlays_, CollectionEventType.REMOVE, (event: CollectionEvent<Overlay<IOverlayOptions>>) => {
-      this.removeOverlayInternal_(event.element);
-    });
+    // listen(this.overlays_, CollectionEventType.REMOVE, (event: CollectionEvent<Overlay<IOverlayOptions>>) => {
+    //   this.removeOverlayInternal_(event.element);
+    // });
   }
 
   private getTarget(): string | undefined {
@@ -125,23 +128,13 @@ export default class BaseMap extends BaseObject<IMapOptions> {
     }
   }
 
-  /**
-   * This deals with map's overlay collection changes.
-   * @param {Overlay<IOverlayOptions>} overlay Overlay.
-   * @private
-   */
-  private addOverlayInternal_(overlay: Overlay<IOverlayOptions>) {
-    const id = overlay.getId();
-    this.overlayIdIndex_[id] = overlay;
-
-    overlay.setMap(this);
-    overlay.startup();
-  }
-
-  private removeOverlayInternal_(overlay: Overlay<IOverlayOptions>) {
-    delete this.overlayIdIndex_[overlay.getId()];
-
-    overlay.dispose();
+  private handleOverlayListChanged() {
+    if (this.layerGroupPropertyListenerKeys) {
+      this.layerGroupPropertyListenerKeys.forEach(unlistenByKey);
+      this.layerGroupPropertyListenerKeys = undefined;
+    }
+    const layerList = this.getOverlays();
+    layerList.setMap(this);
   }
 
   private handleLayerListChanged() {
@@ -150,13 +143,16 @@ export default class BaseMap extends BaseObject<IMapOptions> {
       this.layerGroupPropertyListenerKeys = undefined;
     }
     const layerList = this.getLayerList();
-    if (layerList) {
-      this.layerGroupPropertyListenerKeys = [
-        listen(layerList, BaseObjectEventType.PROPERTYCHANGE, this.startup, this),
-        listen(layerList, BaseEventType.CHANGE, this.startup, this),
-      ];
-    }
-    this.startup();
+
+    layerList.setMap(this);
+
+    // if (layerList) {
+    //   this.layerGroupPropertyListenerKeys = [
+    //     listen(layerList, BaseObjectEventType.PROPERTYCHANGE, this.startup, this),
+    //     listen(layerList, BaseEventType.CHANGE, this.startup, this),
+    //   ];
+    // }
+    // this.startup();
   }
 
   private handleTargetChanged() {
@@ -227,24 +223,19 @@ export default class BaseMap extends BaseObject<IMapOptions> {
     super.disposeInternal();
   }
 
-  setGroupLayer(groupLayer: GroupLayer) {
-    groupLayer.setMap(this);
-    groupLayer.startup();
-  }
-
   getCtrl() {
     return this.ctrl;
   }
 
   getVersion(): string {
-    return this.ctrl.InvokeCmd('CommonOper', 'GetVersion', null);
+    return this.getCtrl().InvokeCmd('CommonOper', 'GetVersion', null);
   }
 
   /**
    * 获取三维控件是32还是64位
    */
   getPlatform(): string {
-    return this.ctrl.InvokeCmd('CommonOper', 'GetPlatform', null);
+    return this.getCtrl().InvokeCmd('CommonOper', 'GetPlatform', null);
   }
 
   getLayerList(): LayerList {
@@ -308,20 +299,26 @@ export default class BaseMap extends BaseObject<IMapOptions> {
   }
 
   getOverlays() {
-    return this.overlays_;
+    const overlays = this.get(MapProperty.OVERLAYLIST);
+    assert(overlays, AssertErrorCode.LAYERLIST_IS_NULL_IN_BASE_OF_MAP);
+    return overlays as OverlayList;
   }
 
   addOverlay(overlay: Overlay<IOverlayOptions>) {
-    this.getOverlays().push(overlay);
+    this.getOverlays()
+      .getLayers()
+      .push(overlay);
   }
 
   removeOverlay(overlay: Overlay<IOverlayOptions>) {
-    return this.getOverlays().remove(overlay);
+    return this.getOverlays()
+      .getLayers()
+      .remove(overlay);
   }
 
   getOverlayById(layerId: string): Overlay<IOverlayOptions> | undefined {
     const overlays = this.getOverlays();
-    const [overlay] = overlays.filter(layer => layer.getId() === layerId);
+    const [overlay] = overlays.getLayers().filter(layer => layer.getId() === layerId);
     return overlay;
   }
 
