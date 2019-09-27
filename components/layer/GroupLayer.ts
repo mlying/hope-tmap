@@ -1,5 +1,5 @@
 import BaseLayer, { IBaseLayerOptions } from './Base';
-import Feature from '../feature/Feature';
+import Feature, { IFeatureProps } from '../feature/Feature';
 import { IpositionObj, IfeatureInfo } from './interface';
 import { getUid } from '../_utils/util';
 
@@ -38,7 +38,7 @@ export default class GroupLayer extends BaseLayer<ILayerOptions> {
    * @param layerId
    * @param whereClause
    */
-  selectFeature(layerId: string, whereClause: string): Feature {
+  selectFeature(layerId: string, whereClause: string): IFeatureProps {
     let param: string[] = [layerId, whereClause];
     let result: any;
     try {
@@ -55,7 +55,7 @@ export default class GroupLayer extends BaseLayer<ILayerOptions> {
    * @param whereClause
    * @param effect
    */
-  selectFeatureAndEffect(layerId: string, whereClause: string, effect: string): Feature {
+  selectFeatureAndEffect(layerId: string, whereClause: string, effect: string): IFeatureProps {
     let param: string[] = [layerId, whereClause, effect];
     let result: any;
     try {
@@ -72,7 +72,7 @@ export default class GroupLayer extends BaseLayer<ILayerOptions> {
    * @param wherePoint
    * @param nearRange
    */
-  selectNearFeature(layerId: string, wherePoint: string, nearRange: number): Feature {
+  selectNearFeature(layerId: string, wherePoint: string, nearRange: number): IFeatureProps {
     let param: [string, string, any] = [layerId, wherePoint, nearRange];
     let result: any;
     try {
@@ -210,7 +210,7 @@ export default class GroupLayer extends BaseLayer<ILayerOptions> {
    * @param featureId
    * @param visible
    */
-  setFeatureVisible(layerId: string, featureId: Feature[], visible: boolean): void {
+  setFeatureVisible(layerId: string, featureId: string, visible: boolean): void {
     let param = [featureId, layerId, visible];
     try {
       this.getCtrl().InvokeCmd('BaseLayerOper', 'SetFeatureVisible', param);

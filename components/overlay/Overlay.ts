@@ -14,7 +14,7 @@ enum Property {
 
 export interface IOverlayOptions extends IBaseOverlayOptions {}
 
-export default class Overlay<T extends IOverlayOptions> extends BaseOverlay<T> {
+export default class Overlay<T extends IOverlayOptions> extends BaseOverlay<IOverlayOptions> {
   private featuresListenerKeys_: EventsKey[];
   constructor(options: T) {
     super(options);

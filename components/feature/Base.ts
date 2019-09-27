@@ -1,22 +1,21 @@
 import BaseObject from '../_utils/BaseObject';
 import BaseMap from '../map/BaseMap';
 import { Dictionary } from '../_utils/interface';
+import FeatureProperty from './Property';
 
 export interface IBaseFeatureProps {
-  layerId?: string;
-  featureId?: string;
+  layerId: string;
+  featureId: string;
 }
 
-export default abstract class BaseFeature<T extends IBaseFeatureProps> extends BaseObject<IBaseFeatureProps> {
+export default abstract class BaseFeature<T extends IBaseFeatureProps> extends BaseObject<T> {
   private map: BaseMap;
+  protected layerId: string;
+  protected featureId: string;
   constructor(options: T) {
     super(options);
-    const properties: Dictionary<any> = Object.assign({}, options);
-    // properties[FeatureProperty.LAYER] = options.layerId !== undefined ? options.layerId : 1;
-    // assert(typeof properties[FeatureProperty.OPACITY] === 'number', AssertErrorCode.LAYER_OPACITY_IS_NOT_NUMBER);
-    // properties[FeatureProperty.VISIBLE] = options.visible !== undefined ? options.visible : true;
-
-    this.setProperties(properties);
+    this.layerId = options.layerId;
+    this.featureId = options.featureId;
   }
 
   setMap(map: BaseMap) {
@@ -29,6 +28,10 @@ export default abstract class BaseFeature<T extends IBaseFeatureProps> extends B
 
   getCtrl() {
     return this.getMap().getCtrl();
+  }
+
+  getIds() {
+    return {LayerID: this.layerId, FeatureID: this.featureId}
   }
 
   abstract startup(): void;
